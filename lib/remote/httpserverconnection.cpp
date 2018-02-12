@@ -178,7 +178,7 @@ void HttpServerConnection::ProcessMessageAsync(HttpRequest& request)
 
 	Array::Ptr headerAllowOrigin = listener->GetAccessControlAllowOrigin();
 
-	if (headerAllowOrigin->GetLength() != 0) {
+	if (headerAllowOrigin && headerAllowOrigin->GetLength() != 0) {
 		String origin = request.Headers->Get("origin");
 
 		{
@@ -190,16 +190,15 @@ void HttpServerConnection::ProcessMessageAsync(HttpRequest& request)
 			}
 		}
 
-		if (listener->GetAccessControlAllowCredentials())
-			response.AddHeader("Access-Control-Allow-Credentials", "true");
+		response.AddHeader("Access-Control-Allow-Credentials", "true");
 
 		String accessControlRequestMethodHeader = request.Headers->Get("access-control-request-method");
 
 		if (!accessControlRequestMethodHeader.IsEmpty()) {
 			response.SetStatus(200, "OK");
 
-			response.AddHeader("Access-Control-Allow-Methods", listener->GetAccessControlAllowMethods());
-			response.AddHeader("Access-Control-Allow-Headers", listener->GetAccessControlAllowHeaders());
+			response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+			response.AddHeader("Access-Control-Allow-Headers", "Authorization, X-HTTP-Method-Override");
 
 			String msg = "Preflight OK";
 			response.WriteBody(msg.CStr(), msg.GetLength());
